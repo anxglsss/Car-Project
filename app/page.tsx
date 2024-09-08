@@ -1,9 +1,9 @@
-import GarageBar from './garage/page'
+import Garage from './garage/page'
 
 export default function Home() {
 	return (
 		<>
-			<GarageBar />
+			<Garage />
 		</>
 	)
 }

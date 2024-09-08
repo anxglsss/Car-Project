@@ -1,28 +1,50 @@
 import { makeAutoObservable } from 'mobx'
 import toast from 'react-hot-toast'
+import {
+	createCar,
+	deleteCar,
+	getCars,
+	updateCar,
+} from '../instance/cars-instance'
 import { ICar } from '../interfaces/main'
 
 class CarStore {
 	cars: ICar[] = []
 	winners: ICar[] = []
-	selectedCar: ICar | null = null
+	selectedCarId: number | undefined = undefined
 	raceInProgress: boolean = false
 
 	constructor() {
 		makeAutoObservable(this)
 	}
 
-	addcar(car: ICar) {
+	async getCars() {
+		this.cars = await getCars()
+	}
+
+	async createCar(car: ICar) {
+		await createCar(car)
 		this.cars.push(car)
 	}
 
-	removeCar(id: number) {
+	async updateCar(id: number, color: string, name: string) {
+		await updateCar(id, color, name)
+		const car = this.cars.find(car => car.id === id)
+		if (car) {
+			car.color = color
+			car.name = name
+		}
+	}
+
+	async removeCar(id: number) {
+		await deleteCar(id)
 		this.cars = this.cars.filter(car => car.id !== id)
 	}
-	setColor(id: number, color: string, name: string) {
-		this.cars.find(car => (car.id === id ? (car.name = name) : null))
-		this.cars.find(car => (car.id === id ? (car.color = color) : null))
+
+	setSelectedCarId(id: number | undefined) {
+		this.selectedCarId = id
 	}
+
 	startRace() {
 		this.raceInProgress = true
 		toast.success('Race has started!')
