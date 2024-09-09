@@ -38,9 +38,11 @@ export async function createCar(car: ICar, id: number) {
 
 export async function generateCars() {
 	try {
-		for (let i = 0; i < 100; i++) {
-			await axiosInstance.post('/garage', generateRandomCar())
-		}
+		const carPromises = Array.from({ length: 100 }, () => generateRandomCar())
+		await Promise.all(
+			carPromises.map(car => axiosInstance.post('/garage', car))
+		)
+
 		const response = await axiosInstance.get('/garage')
 		return response.data
 	} catch (e) {

@@ -9,7 +9,7 @@ import { CarItem } from './car-item'
 const CarDisplay = () => {
 	useEffect(() => {
 		carStore.getCars()
-	}, [])
+	}, [carStore.cars])
 
 	const handlePageChange = (page: number) => {
 		carStore.setPage(page)

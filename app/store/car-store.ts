@@ -53,7 +53,8 @@ class CarStore {
 
 	generateCars = async () => {
 		try {
-			this.cars.push(await generateCars())
+			const newCars = await generateCars()
+			this.cars.push(...newCars)
 		} catch (e) {
 			console.error('Error generating cars:', e)
 		}
