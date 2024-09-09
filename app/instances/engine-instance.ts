@@ -15,3 +15,18 @@ export async function updateEngine(id: number, status: engineStatus) {
 		throw new Error('Error updating engine status')
 	}
 }
+
+export async function switchEngineToDrive(id: number) {
+	try {
+		const response = await axiosInstance.patch('/engine', null, {
+			params: {
+				id,
+				status: 'drive',
+			},
+		})
+		return response.data
+	} catch (e) {
+		console.error('Error switching engine to drive:', e)
+		throw new Error('Error switching engine to drive')
+	}
+}

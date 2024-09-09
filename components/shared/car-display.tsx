@@ -18,7 +18,7 @@ const CarDisplay = () => {
 	return (
 		<div className='flex flex-col items-center'>
 			<h1 className='text-5xl font-bold mb-8'>Cars in Garage</h1>
-			<div className='bg-gray-800 shadow-lg rounded-lg overflow-hidden w-full max-w-6xl'>
+			<div className='bg-gray-800 shadow-lg rounded-lg overflow-hidden w-[170vh] '>
 				<table className='min-w-full table-auto border-separate border-spacing-0'>
 					<thead className='bg-gray-900 text-white'>
 						<tr>

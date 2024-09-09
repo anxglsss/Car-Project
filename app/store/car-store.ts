@@ -5,7 +5,7 @@ import {
 	getCars,
 	updateCar,
 } from '../instances/cars-instance'
-import { updateEngine } from '../instances/engine-instance'
+import { switchEngineToDrive, updateEngine } from '../instances/engine-instance'
 import { ICar } from '../interfaces/main'
 
 class CarStore {
@@ -15,6 +15,7 @@ class CarStore {
 	raceInProgress: boolean = false
 	currentPage: number = 1
 	carsPerPage: number = 7
+	currentId: number = 0 // Отслеживаем максимальный ID
 
 	constructor() {
 		makeAutoObservable(this)
@@ -23,6 +24,11 @@ class CarStore {
 	async getCars() {
 		try {
 			this.cars = await getCars()
+			if (!this.cars) return
+			this.currentId =
+				this.cars.length > 0
+					? Math.max(...this.cars.map(car => car.id ?? 0))
+					: 0
 		} catch (e) {
 			console.error("Error in Store 'getCars': ", e)
 		}
@@ -31,7 +37,7 @@ class CarStore {
 	get paginatedCars() {
 		const start = (this.currentPage - 1) * this.carsPerPage
 		const end = start + this.carsPerPage
-		return this.cars.slice(start, end) // FIXME: 0-7, First Page
+		return this.cars.slice(start, end)
 	}
 
 	get totalPages() {
@@ -46,7 +52,9 @@ class CarStore {
 
 	async createCar(car: ICar) {
 		try {
-			await createCar(car)
+			this.currentId += 1 // Увеличиваем текущий ID при каждом создании нового автомобиля
+			car.id = this.currentId // Присваиваем новый уникальный ID автомобилю
+			await createCar(car, car.id)
 			this.cars.push(car)
 		} catch (e) {
 			console.error("Error in Store 'createCar': ", e)
@@ -84,12 +92,21 @@ class CarStore {
 		}
 	}
 
+	async switchEngineToDrive(id: number) {
+		try {
+			await switchEngineToDrive(id)
+			console.log(`Engine switched to drive, ${id}`)
+		} catch (e) {
+			console.error("Error in Store 'switchEngineToDrive': ", e)
+		}
+	}
+
 	async stopCarEngine(id: number) {
 		try {
 			await updateEngine(id, 'stopped')
 			console.log(`Engine stopped, ${id}`)
 		} catch (e) {
-			console.error("Error in Store'stopCarEngine': ", e)
+			console.error("Error in Store 'stopCarEngine': ", e)
 		}
 	}
 
@@ -97,5 +114,6 @@ class CarStore {
 		this.selectedCarId = id
 	}
 }
+
 const carStore = new CarStore()
 export default carStore
