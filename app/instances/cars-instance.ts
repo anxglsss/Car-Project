@@ -21,9 +21,9 @@ export async function getCarById(id: number) {
 	}
 }
 
-export async function createCar(car: ICar) {
+export async function createCar(car: ICar, id: number) {
 	try {
-		const response = await axiosInstance.post('/garage', car)
+		const response = await axiosInstance.post('/garage', { car, id })
 		return response.data
 	} catch (e) {
 		console.error(e)

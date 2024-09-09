@@ -1,11 +1,11 @@
 import { makeAutoObservable } from 'mobx'
-import toast from 'react-hot-toast'
 import {
 	createCar,
 	deleteCar,
 	getCars,
 	updateCar,
-} from '../instance/cars-instance'
+} from '../instances/cars-instance'
+import { updateEngine } from '../instances/engine-instance'
 import { ICar } from '../interfaces/main'
 
 class CarStore {
@@ -19,40 +19,64 @@ class CarStore {
 	}
 
 	async getCars() {
-		this.cars = await getCars()
+		try {
+			this.cars = await getCars()
+		} catch (e) {
+			console.error("Error in Store 'getCars': ", e)
+		}
 	}
 
 	async createCar(car: ICar) {
-		await createCar(car)
-		this.cars.push(car)
+		try {
+			await createCar(car, this.cars.length + 1)
+			this.cars.push(car)
+		} catch (e) {
+			console.error("Error in Store 'createCar': ", e)
+		}
 	}
 
 	async updateCar(id: number, color: string, name: string) {
-		await updateCar(id, color, name)
-		const car = this.cars.find(car => car.id === id)
-		if (car) {
-			car.color = color
-			car.name = name
+		try {
+			await updateCar(id, color, name)
+			const car = this.cars.find(car => car.id === id)
+			if (car) {
+				car.color = color
+				car.name = name
+			}
+		} catch (e) {
+			console.error("Error in Store 'updateCar': ", e)
 		}
 	}
 
 	async removeCar(id: number) {
-		await deleteCar(id)
-		this.cars = this.cars.filter(car => car.id !== id)
+		try {
+			await deleteCar(id)
+			this.cars = this.cars.filter(car => car.id !== id)
+		} catch (e) {
+			console.error("Error in Store 'removeCar': ", e)
+		}
+	}
+
+	async startCarEngine(id: number) {
+		try {
+			await updateEngine(id, 'started')
+			console.log(`Engine started, ${id}`)
+		} catch (e) {
+			console.error("Error in Store 'startCarEngine': ", e)
+		}
+	}
+
+	async stopCarEngine(id: number) {
+		try {
+			await updateEngine(id, 'stopped')
+			console.log(`Engine stopped, ${id}`)
+		} catch (e) {
+			console.error("Error in Store'stopCarEngine': ", e)
+		}
 	}
 
 	setSelectedCarId(id: number | undefined) {
 		this.selectedCarId = id
-	}
-
-	startRace() {
-		this.raceInProgress = true
-		toast.success('Race has started!')
-	}
-
-	endRace(winner: ICar) {
-		this.raceInProgress = false
-		toast.success('Race has ended!, Winner is ' + winner.name)
 	}
 }
 const carStore = new CarStore()

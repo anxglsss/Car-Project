@@ -14,11 +14,11 @@ export const Forms = () => {
 	} = useUpdateForm()
 
 	const handleCreate = (
-		data: { carName: string; carColor: string },
+		data: { name: string; color: string },
 		event: React.FormEvent<HTMLFormElement>
 	) => {
 		event.preventDefault()
-		const carData: ICar = { name: data.carName, color: data.carColor }
+		const carData: ICar = { name: data.name, color: data.color }
 		carStore.createCar(carData)
 		console.log('Success', data, carData)
 	}
@@ -30,6 +30,7 @@ export const Forms = () => {
 		event.preventDefault()
 		const carData: ICar = { name: data.carName, color: data.carColor }
 		if (!carStore.selectedCarId) return
+
 		carStore.updateCar(carStore.selectedCarId, data.carColor, data.carName)
 		console.log('Success', data, carData)
 	}
@@ -55,13 +56,13 @@ export const Forms = () => {
 						id='carName'
 						placeholder='Car name'
 						className='w-[40%] text-black px-2 py-1 border rounded-lg focus:outline-none h-8'
-						{...register('carName')}
+						{...register('name')}
 					/>
 					<input
 						type='color'
 						id='carColor'
 						className='w-8 text-black h-8 p-1 rounded-lg cursor-pointer'
-						{...register('carColor')}
+						{...register('color')}
 					/>
 					<Button type='submit'>Create</Button>
 				</form>

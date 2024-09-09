@@ -37,12 +37,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en'>
-			<head>
-				<style>
-					@import
-					url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Playwrite+CU:wght@100..400&display=swap');
-				</style>
-			</head>
+			<head></head>
 			<body className={`${outfit.variable} antialiased`}>
 				<Navbar></Navbar>
 				<Container>{children}</Container>

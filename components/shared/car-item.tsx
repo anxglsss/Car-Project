@@ -19,10 +19,23 @@ export const CarItem = observer(({ name, color, id }: ICar) => {
 		carStore.removeCar(id)
 	}
 
+	const handleStartEngine = () => {
+		if (!id) return
+		carStore.startCarEngine(id)
+	}
+
+	const handleStopEngine = () => {
+		if (!id) return
+		carStore.stopCarEngine(id)
+	}
+
 	return (
 		<div className='flex items-center gap-2'>
 			<div className='flex items-center gap-2'>
-				<div className='flex flex-col items-center gap-2'>
+				<div className='ml-4 mr-3'>
+					<h1 className='text-2xl absolute'>#{id}</h1>
+				</div>
+				<div className='flex flex-col items-center gap-2 ml-8'>
 					<Button
 						className={
 							carStore.selectedCarId === id ? 'bg-red-600' : 'bg-slate-900'
@@ -33,11 +46,17 @@ export const CarItem = observer(({ name, color, id }: ICar) => {
 					</Button>
 					<Button onClick={handleDelete}>REMOVE</Button>
 				</div>
-				<div className='flex flex-col gap-3'>
-					<div className='border-2 h-6 w-6 border-white flex items-center justify-center'>
+				<div className='flex flex-col gap-3 cursor-pointer'>
+					<div
+						className='border-2 h-6 w-6 border-white flex items-center justify-center'
+						onClick={handleStartEngine}
+					>
 						A
 					</div>
-					<div className='border-2 h-6 w-6 border-white flex items-center justify-center'>
+					<div
+						className='border-2 h-6 w-6 border-white flex items-center justify-center'
+						onClick={handleStopEngine}
+					>
 						B
 					</div>
 				</div>

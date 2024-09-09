@@ -3,3 +3,4 @@ export interface ICar {
 	name: string
 	color: string
 }
+export type engineStatus = 'started' | 'stopped'

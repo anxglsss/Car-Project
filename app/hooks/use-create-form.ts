@@ -1,14 +1,15 @@
 import { useForm } from 'react-hook-form'
+import { ICar } from '../interfaces/main'
 
 export const useCreateForm = () => {
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm({
+	} = useForm<ICar>({
 		defaultValues: {
-			carName: '',
-			carColor: '#000000',
+			name: '',
+			color: '#000000',
 		},
 	})
 	return {

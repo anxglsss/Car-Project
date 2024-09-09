@@ -6,7 +6,6 @@ import { useEffect } from 'react'
 import { CarItem } from './car-item'
 
 const CarDisplay = () => {
-	// Fetch cars when component mounts
 	useEffect(() => {
 		carStore.getCars()
 	}, [])
@@ -15,23 +14,29 @@ const CarDisplay = () => {
 			<div>
 				<div className='flex justify-between'>
 					<div>
-						<h1 className='text-5xl font-bold  mb-8'>Cars in Garage</h1>
-						<ul>
-							{carStore.cars.length ? (
-								carStore.cars.map(car => (
-									<CarItem
-										key={car.id}
-										id={car.id}
-										name={car.name}
-										color={car.color}
-									/>
-								))
-							) : (
-								<p>No cars available</p>
-							)}
-						</ul>
+						<h1 className='text-5xl font-bold mb-8'>Cars in Garage</h1>
+						<div className='flex'>
+							<div className='w-1 h-[90vh] bg-white'></div>
+
+							<div className='flex'>
+								<ul>
+									{carStore.cars.length ? (
+										carStore.cars.map(car => (
+											<CarItem
+												key={car.id}
+												id={car.id}
+												name={car.name}
+												color={car.color}
+											/>
+										))
+									) : (
+										<p>No cars available</p>
+									)}
+								</ul>
+							</div>
+						</div>
 					</div>
-					<div className='w-1 h-[70vh] bg-white mt-8'></div>
+					<div className='w-1 h-[100vh] bg-white mt-8'></div>
 				</div>
 			</div>
 		</div>
