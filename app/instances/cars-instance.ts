@@ -1,3 +1,4 @@
+import { generateRandomCar } from '@/lib/generate-random-car'
 import { ICar } from '../interfaces/main'
 import { axiosInstance } from './axios-instance'
 
@@ -32,6 +33,19 @@ export async function createCar(car: ICar, id: number) {
 	} catch (e) {
 		console.error(e)
 		throw new Error('Failed to create car')
+	}
+}
+
+export async function generateCars() {
+	try {
+		for (let i = 0; i < 100; i++) {
+			await axiosInstance.post('/garage', generateRandomCar())
+		}
+		const response = await axiosInstance.get('/garage')
+		return response.data
+	} catch (e) {
+		console.error(e)
+		throw new Error('Failed to generate cars')
 	}
 }
 

@@ -2,6 +2,7 @@ import { makeAutoObservable } from 'mobx'
 import {
 	createCar,
 	deleteCar,
+	generateCars,
 	getCars,
 	updateCar,
 } from '../instances/cars-instance'
@@ -15,7 +16,7 @@ class CarStore {
 	raceInProgress: boolean = false
 	currentPage: number = 1
 	carsPerPage: number = 7
-	currentId: number = 0 // Отслеживаем максимальный ID
+	currentId: number = 0
 
 	constructor() {
 		makeAutoObservable(this)
@@ -50,10 +51,18 @@ class CarStore {
 		}
 	}
 
+	generateCars = async () => {
+		try {
+			this.cars.push(await generateCars())
+		} catch (e) {
+			console.error('Error generating cars:', e)
+		}
+	}
+
 	async createCar(car: ICar) {
 		try {
-			this.currentId += 1 // Увеличиваем текущий ID при каждом создании нового автомобиля
-			car.id = this.currentId // Присваиваем новый уникальный ID автомобилю
+			this.currentId += 1
+			car.id = this.currentId
 			await createCar(car, car.id)
 			this.cars.push(car)
 		} catch (e) {

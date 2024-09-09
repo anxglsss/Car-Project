@@ -43,8 +43,11 @@ export const Forms = () => {
 		if (!carStore.selectedCarId) return
 		carStore.updateCar(carStore.selectedCarId, data.carColor, data.carName)
 		toast.success('Car updated successfully')
-		setValue('name', '')
 		console.log('Success', data, carData)
+	}
+
+	const handleGenerate = () => {
+		carStore.generateCars()
 	}
 	return (
 		<div>
@@ -97,7 +100,9 @@ export const Forms = () => {
 					/>
 					<Button type='submit'>Update</Button>
 				</form>
-				<Button className='bg-purple-600 font-bold'>Generate</Button>
+				<Button className='bg-purple-600 font-bold' onClick={handleGenerate}>
+					Generate
+				</Button>
 			</div>
 		</div>
 	)
