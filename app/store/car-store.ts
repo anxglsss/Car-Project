@@ -13,6 +13,8 @@ class CarStore {
 	winners: ICar[] = []
 	selectedCarId: number | undefined = undefined
 	raceInProgress: boolean = false
+	currentPage: number = 1
+	carsPerPage: number = 7
 
 	constructor() {
 		makeAutoObservable(this)
@@ -26,9 +28,25 @@ class CarStore {
 		}
 	}
 
+	get paginatedCars() {
+		const start = (this.currentPage - 1) * this.carsPerPage
+		const end = start + this.carsPerPage
+		return this.cars.slice(start, end) // FIXME: 0-7, First Page
+	}
+
+	get totalPages() {
+		return Math.ceil(this.cars.length / this.carsPerPage)
+	}
+
+	setPage(page: number) {
+		if (page > 0 && page <= this.totalPages) {
+			this.currentPage = page
+		}
+	}
+
 	async createCar(car: ICar) {
 		try {
-			await createCar(car, this.cars.length + 1)
+			await createCar(car)
 			this.cars.push(car)
 		} catch (e) {
 			console.error("Error in Store 'createCar': ", e)

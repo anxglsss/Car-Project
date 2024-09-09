@@ -5,6 +5,7 @@ export const useUpdateForm = () => {
 		register,
 		handleSubmit,
 		formState: { errors },
+		setValue,
 	} = useForm({
 		defaultValues: {
 			carName: '',
@@ -15,5 +16,6 @@ export const useUpdateForm = () => {
 		register,
 		handleSubmit,
 		errors,
+		setValue,
 	}
 }

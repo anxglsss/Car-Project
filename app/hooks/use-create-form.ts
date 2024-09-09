@@ -6,6 +6,7 @@ export const useCreateForm = () => {
 		register,
 		handleSubmit,
 		formState: { errors },
+		setValue,
 	} = useForm<ICar>({
 		defaultValues: {
 			name: '',
@@ -16,5 +17,6 @@ export const useCreateForm = () => {
 		register,
 		handleSubmit,
 		errors,
+		setValue,
 	}
 }

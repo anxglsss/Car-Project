@@ -3,10 +3,11 @@ import { useUpdateForm } from '@/app/hooks/use-update-form'
 import { ICar } from '@/app/interfaces/main'
 import carStore from '@/app/store/car-store'
 import { CirclePlay, TimerReset } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { Button } from '../ui/button'
 
 export const Forms = () => {
-	const { register, handleSubmit, errors } = useCreateForm()
+	const { register, handleSubmit, setValue } = useCreateForm()
 	const {
 		register: register2,
 		handleSubmit: handleSubmit2,
@@ -17,9 +18,15 @@ export const Forms = () => {
 		data: { name: string; color: string },
 		event: React.FormEvent<HTMLFormElement>
 	) => {
+		if (!data.name || !data.color) {
+			toast.error('Name and color are required')
+			return
+		}
 		event.preventDefault()
 		const carData: ICar = { name: data.name, color: data.color }
 		carStore.createCar(carData)
+		toast.success('Car created successfully')
+		setValue('name', '')
 		console.log('Success', data, carData)
 	}
 
@@ -27,11 +34,16 @@ export const Forms = () => {
 		data: { carName: string; carColor: string },
 		event: React.FormEvent<HTMLFormElement>
 	) => {
+		if (!data.carName || !data.carColor) {
+			toast.error('Name and color are required')
+			return
+		}
 		event.preventDefault()
 		const carData: ICar = { name: data.carName, color: data.carColor }
 		if (!carStore.selectedCarId) return
-
 		carStore.updateCar(carStore.selectedCarId, data.carColor, data.carName)
+		toast.success('Car updated successfully')
+		setValue('name', '')
 		console.log('Success', data, carData)
 	}
 	return (

@@ -31,7 +31,7 @@ export const CarItem = observer(({ name, color, id }: ICar) => {
 
 	return (
 		<div className='flex items-center gap-2'>
-			<div className='flex items-center gap-2'>
+			<div className='flex items-center gap-2 w-full'>
 				<div className='ml-4 mr-3'>
 					<h1 className='text-2xl absolute'>#{id}</h1>
 				</div>
@@ -63,6 +63,7 @@ export const CarItem = observer(({ name, color, id }: ICar) => {
 				<Car color={color} className='w-12 h-12' />
 				<div className='h-24 w-1 bg-white'></div>
 				<h2 className='text-3xl text-white text-opacity-70'>{name}</h2>
+				<div className='h-24 w-1 bg-white absolute right-40'></div>
 			</div>
 		</div>
 	)
