@@ -75,6 +75,7 @@ const CarDisplay = () => {
 					<RotateCw />
 				</button>
 			</div>
+			<h1 className='text-4xl mt-2'>Garage Cars({carStore.cars.length})</h1>
 			<div className='mt-8 w-full max-w-6xl'>
 				<div className='border-t-4 border-dashed border-white h-6'></div>
 			</div>

@@ -48,6 +48,7 @@ export const Forms = () => {
 
 	const handleGenerate = () => {
 		carStore.generateCars()
+		toast.success('Cars generated successfully')
 	}
 	return (
 		<div>

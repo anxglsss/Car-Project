@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx'
+import { axiosInstance } from '../instances/axios-instance'
 import {
 	createCar,
 	deleteCar,
@@ -6,8 +7,8 @@ import {
 	getCars,
 	updateCar,
 } from '../instances/cars-instance'
-import { switchEngineToDrive, updateEngine } from '../instances/engine-instance'
-import { ICar } from '../interfaces/main'
+import { switchEngineToDrive } from '../instances/engine-instance'
+import { engineStatus, ICar } from '../interfaces/main'
 
 class CarStore {
 	cars: ICar[] = []
@@ -93,15 +94,6 @@ class CarStore {
 		}
 	}
 
-	async startCarEngine(id: number) {
-		try {
-			await updateEngine(id, 'started')
-			console.log(`Engine started, ${id}`)
-		} catch (e) {
-			console.error("Error in Store 'startCarEngine': ", e)
-		}
-	}
-
 	async switchEngineToDrive(id: number) {
 		try {
 			await switchEngineToDrive(id)
@@ -111,12 +103,42 @@ class CarStore {
 		}
 	}
 
-	async stopCarEngine(id: number) {
+	async updateEngine(id: number, status: engineStatus) {
 		try {
-			await updateEngine(id, 'stopped')
-			console.log(`Engine stopped, ${id}`)
+			const response = await axiosInstance.patch('/engine', null, {
+				params: { id, status },
+			})
+			return response.data
 		} catch (e) {
-			console.error("Error in Store 'stopCarEngine': ", e)
+			console.error('Error updating engine status:', e)
+			throw new Error('Error updating engine status')
+		}
+	}
+
+	async startRace() {
+		try {
+			const promises = this.cars.map(car =>
+				this.updateEngine(car.id ?? 0, 'drive')
+			)
+			await Promise.all(promises)
+
+			const response = await axiosInstance.get('/winners')
+			this.winners = response.data
+		} catch (e) {
+			console.error('Error starting the race:', e)
+			throw new Error('Error starting the race')
+		}
+	}
+
+	async stopRace() {
+		try {
+			const promises = this.cars.map(car =>
+				this.updateEngine(car.id ?? 0, 'stopped')
+			)
+			await Promise.all(promises)
+		} catch (e) {
+			console.error('Error stopping the race:', e)
+			throw new Error('Error stopping the race')
 		}
 	}
 
