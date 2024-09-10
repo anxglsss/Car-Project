@@ -1,5 +1,4 @@
 import { makeAutoObservable } from 'mobx'
-import { axiosInstance } from '../instances/axios-instance'
 import {
 	createCar,
 	deleteCar,
@@ -7,7 +6,7 @@ import {
 	getCars,
 	updateCar,
 } from '../instances/cars-instance'
-import { switchEngineToDrive } from '../instances/engine-instance'
+import { switchEngineToDrive, updateEngine } from '../instances/engine-instance'
 import { engineStatus, ICar } from '../interfaces/main'
 
 class CarStore {
@@ -18,6 +17,7 @@ class CarStore {
 	currentPage: number = 1
 	carsPerPage: number = 7
 	currentId: number = 0
+	trackLength: number = 1000
 
 	constructor() {
 		makeAutoObservable(this)
@@ -103,27 +103,38 @@ class CarStore {
 		}
 	}
 
-	async updateEngine(id: number, status: engineStatus) {
+	updateEngine = async (id: number, status: engineStatus) => {
 		try {
-			const response = await axiosInstance.patch('/engine', null, {
-				params: { id, status },
-			})
-			return response.data
+			const response = await updateEngine(id, status)
+			const car = this.cars.find(car => id === car.id)
+			if (car) {
+				car.velocity = response.velocity
+				car.distance = response.distance
+				car.startTime = Date.now()
+				return { velocity: response.velocity, distance: response.distance }
+			} else {
+				console.error(`Car with id ${id} not found`)
+				throw new Error('Car not found')
+			}
 		} catch (e) {
-			console.error('Error updating engine status:', e)
-			throw new Error('Error updating engine status')
+			console.error("Error in Store 'updateEngine': ", e)
+			throw new Error('Error updating the engine')
 		}
 	}
 
 	async startRace() {
 		try {
+			this.raceInProgress = true
 			const promises = this.cars.map(car =>
 				this.updateEngine(car.id ?? 0, 'drive')
 			)
 			await Promise.all(promises)
 
-			const response = await axiosInstance.get('/winners')
-			this.winners = response.data
+			this.cars.forEach(car => {
+				if (car.velocity) {
+					this.moveCar(car)
+				}
+			})
 		} catch (e) {
 			console.error('Error starting the race:', e)
 			throw new Error('Error starting the race')
@@ -132,6 +143,7 @@ class CarStore {
 
 	async stopRace() {
 		try {
+			this.raceInProgress = false
 			const promises = this.cars.map(car =>
 				this.updateEngine(car.id ?? 0, 'stopped')
 			)
@@ -140,6 +152,26 @@ class CarStore {
 			console.error('Error stopping the race:', e)
 			throw new Error('Error stopping the race')
 		}
+	}
+
+	moveCar(car: ICar) {
+		const updatePosition = () => {
+			if (this.raceInProgress && car.velocity) {
+				const currentTime = Date.now()
+				const elapsedTime =
+					(currentTime - (car.startTime ?? currentTime)) / 1000
+
+				car.currentDistance = (car.velocity ?? 0) * elapsedTime
+
+				if (car.currentDistance < this.trackLength) {
+					requestAnimationFrame(updatePosition)
+				} else {
+					this.winners.push(car)
+					car.currentDistance = this.trackLength
+				}
+			}
+		}
+		updatePosition()
 	}
 
 	setSelectedCarId(id: number | undefined) {

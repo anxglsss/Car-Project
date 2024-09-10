@@ -2,60 +2,80 @@ import { ICar } from '@/app/interfaces/main'
 import carStore from '@/app/store/car-store'
 import { Car } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Button } from '../ui/button'
 
-const DISTANCE = 1400 // Distance to the finish line (adjust as needed)
-
 export const CarItem = observer(({ name, color, id }: ICar) => {
-	const [position, setPosition] = useState<number>(0) // Position of the car
-	const [isMoving, setIsMoving] = useState<boolean>(false) // Whether the car is moving
+	const [isMoving, setIsMoving] = useState<boolean>(false)
+	const [distance, setDistance] = useState<number>(0)
+	const [velocity, setVelocity] = useState<number>(0)
+	const [duration, setDuration] = useState<number>(0)
+	const carRef = useRef<HTMLDivElement>(null)
+	const backendDistance = 1000
 
-	useEffect(() => {
-		if (!isMoving) return
+	const calculateDistance = () => {
+		const screenWidth = window.innerWidth
+		const maxDistance = 0.7 * screenWidth
+		const scaleFactor = maxDistance / backendDistance
+		return backendDistance * scaleFactor
+	}
 
-		const interval = setInterval(() => {
-			setPosition(prevPosition => {
-				if (prevPosition >= DISTANCE) {
-					clearInterval(interval)
-					console.log(`Car ${id} has finished the race!`)
-					setIsMoving(false)
-					return DISTANCE
-				}
-				return prevPosition + 25 // Increment the position (speed can be adjusted)
-			})
-		}, 100) // Update position every 100ms
-
-		return () => clearInterval(interval)
-	}, [isMoving, id])
-
-	const handleSelect = () => {
+	const handleStartEngine = async () => {
 		if (!id) return
-		if (carStore.selectedCarId === id) {
-			carStore.setSelectedCarId(0)
-		} else {
-			carStore.setSelectedCarId(id)
+		try {
+			const { velocity: backendVelocity } = await carStore.updateEngine(
+				id,
+				'started'
+			)
+			const scaledDistance = calculateDistance()
+			const calculatedDuration = scaledDistance / backendVelocity
+
+			setDistance(scaledDistance)
+			setVelocity(backendVelocity)
+			setDuration(calculatedDuration)
+			setIsMoving(true)
+
+			setTimeout(() => {
+				setIsMoving(false)
+				toast.success(`Car ${id} достиг финиша!`)
+			}, calculatedDuration * 1000)
+		} catch (error) {
+			toast.error('Ошибка при запуске двигателя')
 		}
-	}
-
-	const handleDelete = () => {
-		if (!id) return
-		carStore.removeCar(id)
-		toast.success('Successfully deleted car')
-	}
-
-	const handleStartEngine = () => {
-		if (!id) return
-		carStore.updateEngine(id, 'started')
-		setIsMoving(true) // Start the car movement
 	}
 
 	const handleStopEngine = () => {
 		if (!id) return
 		carStore.updateEngine(id, 'stopped')
-		setIsMoving(false) // Stop the car movement
+		setIsMoving(false)
+
+		setTimeout(() => {
+			setDistance(0)
+		}, 0)
 	}
+
+	const handleSelect = () => {
+		if (!id) return
+		carStore.setSelectedCarId(carStore.selectedCarId === id ? 0 : id)
+	}
+
+	const handleDelete = () => {
+		if (!id) return
+		carStore.removeCar(id)
+		toast.success('Автомобиль успешно удален')
+	}
+
+	useEffect(() => {
+		const updateDistanceOnResize = () => {
+			setDistance(calculateDistance())
+		}
+		window.addEventListener('resize', updateDistanceOnResize)
+
+		return () => {
+			window.removeEventListener('resize', updateDistanceOnResize)
+		}
+	}, [])
 
 	return (
 		<div className='flex items-center gap-2'>
@@ -89,8 +109,12 @@ export const CarItem = observer(({ name, color, id }: ICar) => {
 					</div>
 				</div>
 				<div
-					className='flex items-center justify-center transition-transform duration-300 '
-					style={{ transform: `translateX(${position}px)` }}
+					ref={carRef}
+					className={`flex items-center justify-center transition-transform`}
+					style={{
+						transform: isMoving ? `translateX(${distance}px)` : 'translateX(0)',
+						transitionDuration: `${isMoving ? duration : 0}s`,
+					}}
 				>
 					<Car color={color} className='w-12 h-12' />
 				</div>
