@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Button } from '../ui/button'
 
 const Navbar = () => {
@@ -6,15 +7,20 @@ const Navbar = () => {
 			<div className='flex justify-between items-center'>
 				<div className='flex space-x-4'>
 					<div className='flex flex-col items-center gap-3'>
-						<Button
-							className='text-slate-900 px-8 text-lg font-bold py-5'
-							variant='outline'
-						>
-							Garage
-						</Button>
-						<Button className='bg-green-500 hover:bg-green-700 px-8 text-lg font-bold py-5'>
-							Winners
-						</Button>
+						<Link href='/garage'>
+							<Button
+								className='text-slate-900 px-8 text-lg font-bold py-5'
+								variant='outline'
+							>
+								Garage
+							</Button>
+						</Link>
+
+						<Link href='/winners'>
+							<Button className='bg-green-500 hover:bg-green-700 px-8 text-lg font-bold py-5'>
+								Winners
+							</Button>
+						</Link>
 					</div>
 				</div>
 

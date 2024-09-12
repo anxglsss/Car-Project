@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { action, makeAutoObservable, runInAction } from 'mobx'
 import {
 	createCar,
 	deleteCar,
@@ -20,17 +20,32 @@ class CarStore {
 	trackLength: number = 1000
 
 	constructor() {
-		makeAutoObservable(this)
+		makeAutoObservable(this, {
+			getCars: action,
+			createCar: action,
+			updateCar: action,
+			removeCar: action,
+			generateCars: action,
+			setSelectedCarId: action,
+			setPage: action,
+			switchEngineToDrive: action,
+			updateEngine: action,
+			startRace: action, // Ensure startRace is recognized as an action
+		})
 	}
 
 	async getCars() {
 		try {
-			this.cars = await getCars()
-			if (!this.cars) return
-			this.currentId =
-				this.cars.length > 0
-					? Math.max(...this.cars.map(car => car.id ?? 0))
-					: 0
+			const fetchedCars = await getCars()
+			if (!fetchedCars) return
+
+			runInAction(() => {
+				this.cars = fetchedCars
+				this.currentId =
+					this.cars.length > 0
+						? Math.max(...this.cars.map(car => car.id ?? 0))
+						: 0
+			})
 		} catch (e) {
 			console.error("Error in Store 'getCars': ", e)
 		}
@@ -48,14 +63,18 @@ class CarStore {
 
 	setPage(page: number) {
 		if (page > 0 && page <= this.totalPages) {
-			this.currentPage = page
+			runInAction(() => {
+				this.currentPage = page
+			})
 		}
 	}
 
-	generateCars = async () => {
+	async generateCars() {
 		try {
 			const newCars = await generateCars()
-			this.cars.push(...newCars)
+			runInAction(() => {
+				this.cars.push(...newCars)
+			})
 		} catch (e) {
 			console.error('Error generating cars:', e)
 		}
@@ -66,7 +85,9 @@ class CarStore {
 			this.currentId += 1
 			car.id = this.currentId
 			await createCar(car, car.id)
-			this.cars.push(car)
+			runInAction(() => {
+				this.cars.push(car)
+			})
 		} catch (e) {
 			console.error("Error in Store 'createCar': ", e)
 		}
@@ -75,11 +96,13 @@ class CarStore {
 	async updateCar(id: number, color: string, name: string) {
 		try {
 			await updateCar(id, color, name)
-			const car = this.cars.find(car => car.id === id)
-			if (car) {
-				car.color = color
-				car.name = name
-			}
+			runInAction(() => {
+				const car = this.cars.find(car => car.id === id)
+				if (car) {
+					car.color = color
+					car.name = name
+				}
+			})
 		} catch (e) {
 			console.error("Error in Store 'updateCar': ", e)
 		}
@@ -88,7 +111,9 @@ class CarStore {
 	async removeCar(id: number) {
 		try {
 			await deleteCar(id)
-			this.cars = this.cars.filter(car => car.id !== id)
+			runInAction(() => {
+				this.cars = this.cars.filter(car => car.id !== id)
+			})
 		} catch (e) {
 			console.error("Error in Store 'removeCar': ", e)
 		}
@@ -103,79 +128,52 @@ class CarStore {
 		}
 	}
 
-	updateEngine = async (id: number, status: engineStatus) => {
+	async updateEngine(id: number, status: engineStatus) {
 		try {
 			const response = await updateEngine(id, status)
-			const car = this.cars.find(car => id === car.id)
-			if (car) {
-				car.velocity = response.velocity
-				car.distance = response.distance
-				car.startTime = Date.now()
-				return { velocity: response.velocity, distance: response.distance }
-			} else {
-				console.error(`Car with id ${id} not found`)
-				throw new Error('Car not found')
-			}
+			runInAction(() => {
+				const car = this.cars.find(car => id === car.id)
+				if (car) {
+					car.velocity = response.velocity
+					car.distance = response.distance
+					car.startTime = Date.now()
+				} else {
+					console.error(`Car with id ${id} not found`)
+					throw new Error('Car not found')
+				}
+			})
+			return { velocity: response.velocity, distance: response.distance }
 		} catch (e) {
 			console.error("Error in Store 'updateEngine': ", e)
 			throw new Error('Error updating the engine')
 		}
 	}
 
-	async startRace() {
-		try {
-			this.raceInProgress = true
-			const promises = this.cars.map(car =>
-				this.updateEngine(car.id ?? 0, 'drive')
-			)
-			await Promise.all(promises)
-
-			this.cars.forEach(car => {
-				if (car.velocity) {
-					this.moveCar(car)
-				}
-			})
-		} catch (e) {
-			console.error('Error starting the race:', e)
-			throw new Error('Error starting the race')
-		}
-	}
-
-	async stopRace() {
-		try {
-			this.raceInProgress = false
-			const promises = this.cars.map(car =>
-				this.updateEngine(car.id ?? 0, 'stopped')
-			)
-			await Promise.all(promises)
-		} catch (e) {
-			console.error('Error stopping the race:', e)
-			throw new Error('Error stopping the race')
-		}
-	}
-
-	moveCar(car: ICar) {
-		const updatePosition = () => {
-			if (this.raceInProgress && car.velocity) {
-				const currentTime = Date.now()
-				const elapsedTime =
-					(currentTime - (car.startTime ?? currentTime)) / 1000
-
-				car.currentDistance = (car.velocity ?? 0) * elapsedTime
-
-				if (car.currentDistance < this.trackLength) {
-					requestAnimationFrame(updatePosition)
-				} else {
-					this.winners.push(car)
-					car.currentDistance = this.trackLength
-				}
-			}
-		}
-		updatePosition()
-	}
-
 	setSelectedCarId(id: number | undefined) {
-		this.selectedCarId = id
+		runInAction(() => {
+			this.selectedCarId = id
+		})
+	}
+
+	// New method to start the race for all cars
+	async startRace() {
+		this.raceInProgress = true
+		try {
+			// Assuming you want to update engines of all cars at once
+			await Promise.all(
+				this.cars.map(async car => {
+					// Use an appropriate status for the race
+					await this.updateEngine(car.id ?? 0, 'started')
+				})
+			)
+			// Optionally handle race completion
+		} catch (e) {
+			console.error('Error starting race: ', e)
+		} finally {
+			runInAction(() => {
+				this.raceInProgress = false
+			})
+		}
 	}
 }
 

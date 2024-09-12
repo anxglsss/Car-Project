@@ -16,6 +16,21 @@ export async function updateEngine(id: number, status: engineStatus) {
 	}
 }
 
+export async function updateEngineForAll(id: number, status: engineStatus) {
+	try {
+		const response = await axiosInstance.patch('/engine', null, {
+			params: {
+				id,
+				status,
+			},
+		})
+		return response.data
+	} catch (e) {
+		console.error('Error updating engine status for all:', e)
+		throw new Error('Error updating engine status for all')
+	}
+}
+
 export async function switchEngineToDrive(id: number) {
 	try {
 		const response = await axiosInstance.patch('/engine', null, {
