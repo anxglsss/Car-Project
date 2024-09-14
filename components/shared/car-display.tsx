@@ -17,8 +17,8 @@ const CarDisplay = () => {
 
 	return (
 		<div className='flex flex-col items-center'>
-			<h1 className='text-5xl font-bold mb-8'>Cars in Garage</h1>
-			<div className='bg-gray-800 shadow-lg rounded-lg overflow-hidden w-[180vh] '>
+			<h1 className='text-5xl font-bold mb-8 '>Cars in Garage</h1>
+			<div className='bg-gray-800 shadow-lg rounded-lg overflow-hidden xl:w-[180vh] lg:w-[160vh] md:w-[130vh] sm:w-[110vh] w-[95vh]'>
 				<table className='min-w-full table-auto border-separate border-spacing-0'>
 					<thead className='bg-gray-900 text-white'>
 						<tr>
@@ -26,7 +26,7 @@ const CarDisplay = () => {
 							<th className='px-4 py-2 border-b'>Finish</th>
 						</tr>
 					</thead>
-					<tbody className='text-white'>
+					<tbody className='text-white relative'>
 						{carStore.paginatedCars.length ? (
 							carStore.paginatedCars.map(car => (
 								<CarItem
@@ -43,6 +43,15 @@ const CarDisplay = () => {
 								</td>
 							</tr>
 						)}
+
+						<tr>
+							<td colSpan={2} className='relative'>
+								<div
+									className='absolute top-0 right-0 h-full border-r-4  border-white'
+									style={{ height: '100%', right: '10px' }}
+								></div>
+							</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>

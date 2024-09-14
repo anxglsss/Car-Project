@@ -13,7 +13,7 @@ const WinnersPage = observer(() => {
 	return (
 		<div className='p-6 flex flex-col items-center'>
 			<h1 className='text-6xl font-bold mb-8'>Winners</h1>
-			<div className='bg-gray-800 shadow-lg rounded-lg overflow-hidden w-[180vh] '>
+			<div className='bg-gray-800 shadow-lg rounded-lg overflow-hidden xl:w-[180vh] lg:w-[140vh] md:w-[120vh] sm:w-[100vh] w-[80vh] '>
 				<table className='min-w-full '>
 					<thead className='bg-gray-900 text-white '>
 						<tr>

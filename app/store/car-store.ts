@@ -30,7 +30,7 @@ class CarStore {
 			setPage: action,
 			switchEngineToDrive: action,
 			updateEngine: action,
-			startRace: action, // Ensure startRace is recognized as an action
+			startRace: action,
 		})
 	}
 
@@ -39,13 +39,11 @@ class CarStore {
 			const fetchedCars = await getCars()
 			if (!fetchedCars) return
 
-			runInAction(() => {
-				this.cars = fetchedCars
-				this.currentId =
-					this.cars.length > 0
-						? Math.max(...this.cars.map(car => car.id ?? 0))
-						: 0
-			})
+			this.cars = fetchedCars
+			this.currentId =
+				this.cars.length > 0
+					? Math.max(...this.cars.map(car => car.id ?? 0))
+					: 0
 		} catch (e) {
 			console.error("Error in Store 'getCars': ", e)
 		}
@@ -155,18 +153,14 @@ class CarStore {
 		})
 	}
 
-	// New method to start the race for all cars
 	async startRace() {
 		this.raceInProgress = true
 		try {
-			// Assuming you want to update engines of all cars at once
 			await Promise.all(
 				this.cars.map(async car => {
-					// Use an appropriate status for the race
 					await this.updateEngine(car.id ?? 0, 'started')
 				})
 			)
-			// Optionally handle race completion
 		} catch (e) {
 			console.error('Error starting race: ', e)
 		} finally {

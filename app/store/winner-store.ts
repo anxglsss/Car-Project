@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { action, makeAutoObservable } from 'mobx'
 import {
 	createWinner,
 	deleteWinner,
@@ -12,14 +12,20 @@ class WinnerStore {
 	firstPlace: { carId: number; raceTime: number } | null = null
 
 	constructor() {
-		makeAutoObservable(this)
+		makeAutoObservable(this, {
+			addOrUpdateWinner: action,
+			createWinner: action,
+			updateWinner: action,
+			deleteWinner: action,
+			getWinners: action,
+		})
 	}
 
 	async addOrUpdateWinner(carId: number, raceTime: number) {
 		try {
 			const existingWinner = this.winners.find(winner => winner.id === carId)
 			if (existingWinner) {
-				const newWins = (existingWinner.wins ?? 0) + 1
+				const newWins = existingWinner.wins ? existingWinner.wins + 1 : 1
 				const newBestTime = Math.min(existingWinner.time ?? raceTime, raceTime)
 				console.log(
 					'Updating winner with id:',
@@ -49,6 +55,7 @@ class WinnerStore {
 	async getWinners() {
 		try {
 			const data = await getWinners()
+			console.log('Fetched winners:', data)
 			this.winners = data
 		} catch (e) {
 			console.error('Error fetching cars at WinnerStore: ', e)

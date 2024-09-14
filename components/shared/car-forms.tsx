@@ -1,9 +1,9 @@
 import { useCreateForm } from '@/app/hooks/use-create-form'
 import { useUpdateForm } from '@/app/hooks/use-update-form'
-import { ICar } from '@/app/interfaces/main'
 import carStore from '@/app/store/car-store'
 import { raceStore } from '@/app/store/race-store'
 
+import { handleStartUtil } from '@/lib/handle-start'
 import { CirclePlay, TimerReset } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import toast from 'react-hot-toast'
@@ -22,7 +22,7 @@ export const Forms = observer(() => {
 			toast.error('Name and color are required')
 			return
 		}
-		const carData: ICar = { name: data.name, color: data.color }
+		const carData = { name: data.name, color: data.color }
 		carStore.createCar(carData)
 		toast.success('Car created successfully')
 		setValue('name', '')
@@ -49,34 +49,44 @@ export const Forms = observer(() => {
 
 	const handleStartAllCars = async () => {
 		try {
-			await Promise.all(
-				carStore.cars.map(car => raceStore.handleStartUtil(car.id ?? 0))
-			)
-			toast.success('All cars started racing')
+			for (const car of carStore.cars) {
+				await handleStartUtil(car.id ?? 0, raceStore)
+			}
+			toast.success('Все машины начали гонку')
 		} catch (error) {
 			console.error('Error starting all cars:', error)
 			toast.error('Error starting all cars')
 		}
 	}
 
+	const handleStopAllCars = async () => {
+		try {
+			await raceStore.handleStopAllCars()
+		} catch (e) {
+			console.error('Error stopping all cars:', e)
+			toast.error('Error stopping all cars')
+		}
+	}
+
 	return (
 		<div>
 			<div className='flex gap-3 items-center justify-between'>
-				<div className='flex gap-2'>
+				<div className='md:flex md:flex-row flex flex-col items-center gap-2'>
 					<Button
-						className='button-controller flex gap-2'
+						className='button-controller flex gap-2 lg:px-8 px-4'
 						onClick={handleStartAllCars}
 					>
 						Race All
-						<CirclePlay />
+						<CirclePlay className='lg:block hidden' />
 					</Button>
-					<Button className='button-controller flex gap-2'>
+					<Button
+						className='button-controller flex gap-2'
+						onClick={handleStopAllCars}
+					>
 						Reset
-						<TimerReset />
+						<TimerReset className='lg:block hidden' />
 					</Button>
 				</div>
-
-				{/* Form for creating a new car */}
 				<form
 					className='p-6 gap-2 rounded-lg flex items-center'
 					onSubmit={handleSubmit(handleCreate)}
@@ -84,20 +94,20 @@ export const Forms = observer(() => {
 					<input
 						type='text'
 						id='carName'
-						placeholder='Car name'
-						className='w-[40%] text-black px-2 py-1 border rounded-lg focus:outline-none h-8'
+						className='lg:w-[40%] w-[30%] text-black px-2 sm:py-[2px] py-0 border rounded-lg focus:outline-none sm:h-8 h-6'
 						{...register('name')}
 					/>
 					<input
 						type='color'
 						id='carColor'
-						className='w-8 text-black h-8 p-1 rounded-lg cursor-pointer'
+						className='sm:w-8 sm:h-8 w-6 h-5 text-black sm:p-1 p-1/2 rounded-lg cursor-pointer'
 						{...register('color')}
 					/>
-					<Button type='submit'>Create</Button>
+					<Button type='submit' className='h-8'>
+						Create
+					</Button>
 				</form>
 
-				{/* Form for updating a car */}
 				<form
 					className='p-6 gap-2 rounded-lg flex items-center'
 					onSubmit={handleSubmit2(handleUpdate)}
@@ -105,17 +115,18 @@ export const Forms = observer(() => {
 					<input
 						type='text'
 						id='carName'
-						placeholder='Car name'
-						className='w-[40%] text-black px-2 py-1 border rounded-lg focus:outline-none h-8'
+						className='lg:w-[40%] w-[30%] text-black px-2 py-1 border rounded-lg focus:outline-none sm:h-8 h-6 '
 						{...register2('carName')}
 					/>
 					<input
 						type='color'
 						id='carColor'
-						className='w-8 text-black h-8 p-1 rounded-lg cursor-pointer'
+						className='sm:w-8 sm:h-8 w-6 h-5 text-black sm:p-1 p-1/2 rounded-lg cursor-pointer'
 						{...register2('carColor')}
 					/>
-					<Button type='submit'>Update</Button>
+					<Button type='submit' className='h-8'>
+						Update
+					</Button>
 				</form>
 
 				<Button className='bg-purple-600 font-bold' onClick={handleGenerate}>

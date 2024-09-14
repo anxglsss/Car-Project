@@ -1,4 +1,3 @@
-// pages/api/cars.js
 export async function getCars() {
 	const res = await fetch('http://localhost:3000/garage')
 	const data = await res.json()

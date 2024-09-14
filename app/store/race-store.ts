@@ -21,7 +21,7 @@ class RaceStore {
 
 	calculateDistance = () => {
 		const screenWidth = window.innerWidth
-		const maxDistance = 0.7 * screenWidth
+		const maxDistance = 0.65 * screenWidth
 		const scaleFactor = maxDistance / this.distance
 		return this.distance * scaleFactor
 	}
@@ -40,13 +40,11 @@ class RaceStore {
 			clearTimeout(this.timerId)
 		}
 
-		// When the car reaches the finish line
 		this.timerId = setTimeout(async () => {
 			if (this.isMoving) {
 				this.isMoving = false
 				toast.success(`Car ${id} reached the finish line!`)
 
-				// Add the logic for checking if the car is the winner
 				const isWinner = this.checkWinner(id, calculatedDuration)
 				if (isWinner) {
 					await winnerStore.addOrUpdateWinner(id, calculatedDuration)
@@ -55,9 +53,7 @@ class RaceStore {
 		}, calculatedDuration * 1000)
 	}
 
-	// This function checks if the car is the first to finish
 	checkWinner = (carId: number, raceTime: number) => {
-		// Logic to ensure it's the first car finishing the race
 		if (!winnerStore.firstPlace) {
 			winnerStore.firstPlace = { carId, raceTime }
 			return true
@@ -82,10 +78,23 @@ class RaceStore {
 			for (const car of carStore.cars) {
 				await this.handleStartUtil(car.id ?? 0)
 			}
-			toast.success('Все машины начали движение')
+			toast.success('Все машины начали гонку')
 		} catch (error) {
-			console.error('Ошибка при запуске всех машин:', error)
-			toast.error('Ошибка при запуске всех машин')
+			console.error('Ошибка при старте всех машин:', error)
+			toast.error('Ошибка при старте всех машин')
+		}
+	}
+
+	handleStopAllCars = async () => {
+		try {
+			for (const car of carStore.cars) {
+				raceStore.handleStopEngine()
+				carStore.updateEngine(car.id ?? 0, 'stopped')
+			}
+			toast.success('Все машины остановились')
+		} catch (e) {
+			console.error('Ошибка при остановке всех машин:', e)
+			toast.error('Ошибка при остановке всех машин')
 		}
 	}
 

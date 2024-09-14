@@ -1,5 +1,6 @@
 import { ICar } from '@/app/interfaces/main'
 import { winnerStore } from '@/app/store/winner-store'
+import { observer } from 'mobx-react-lite'
 import { Button } from '../ui/button'
 
 const WinnerItem = ({ car }: { car: ICar }) => {
@@ -32,4 +33,4 @@ const WinnerItem = ({ car }: { car: ICar }) => {
 	)
 }
 
-export default WinnerItem
+export default observer(WinnerItem)
