@@ -30,9 +30,9 @@ class WinnerStore {
 				console.log(
 					'Updating winner:',
 					carId,
-					'new wins:',
+					'New wins:',
 					newWins,
-					'new best time:',
+					'New best time:',
 					newBestTime
 				)
 

@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 import { Button } from '../ui/button'
 
 export const CarItem = observer(({ name, color, id }: ICar) => {
-	const [raceStore] = useState(() => new RaceStore())
+	const [raceStore] = useState(() => new RaceStore()) // individual racestore
 
 	const handleStop = () => {
 		if (!id) return

@@ -13,7 +13,6 @@ export default function ManageBar() {
 			const data = await getCars()
 			setCars(data)
 		}
-
 		fetchCars()
 	}, [])
 
