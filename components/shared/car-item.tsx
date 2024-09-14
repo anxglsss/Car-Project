@@ -13,7 +13,7 @@ export const CarItem = observer(({ name, color, id }: ICar) => {
 
 	const handleStop = () => {
 		if (!id) return
-		raceStore.handleStopEngine()
+		raceStore.handleStopEngine(id)
 		carStore.updateEngine(id, 'stopped')
 	}
 

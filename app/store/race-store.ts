@@ -26,6 +26,8 @@ class RaceStore {
 		return this.distance * scaleFactor
 	}
 
+	timerIds: Record<number, NodeJS.Timeout | null> = {}
+
 	handleStartEngine = (id: number, backendVelocity: number) => {
 		if (!id) return
 
@@ -36,11 +38,11 @@ class RaceStore {
 		this.duration = calculatedDuration
 		this.isMoving = true
 
-		if (this.timerId) {
-			clearTimeout(this.timerId)
+		if (this.timerIds[id]) {
+			clearTimeout(this.timerIds[id])
 		}
 
-		this.timerId = setTimeout(async () => {
+		this.timerIds[id] = setTimeout(async () => {
 			if (this.isMoving) {
 				this.isMoving = false
 				toast.success(`Car ${id} reached the finish line!`)
@@ -53,24 +55,24 @@ class RaceStore {
 		}, calculatedDuration * 1000)
 	}
 
+	handleStopEngine = (id: number) => {
+		this.isMoving = false
+
+		if (this.timerIds[id]) {
+			clearTimeout(this.timerIds[id])
+			this.timerIds[id] = null
+		}
+
+		this.distance = 0
+		this.duration = 0
+	}
+
 	checkWinner = (carId: number, raceTime: number) => {
 		if (!winnerStore.firstPlace) {
 			winnerStore.firstPlace = { carId, raceTime }
 			return true
 		}
 		return false
-	}
-
-	handleStopEngine = () => {
-		this.isMoving = false
-
-		if (this.timerId) {
-			clearTimeout(this.timerId)
-			this.timerId = null
-		}
-
-		this.distance = 0
-		this.duration = 0
 	}
 
 	handleStartAllCars = async () => {
@@ -88,7 +90,7 @@ class RaceStore {
 	handleStopAllCars = async () => {
 		try {
 			for (const car of carStore.cars) {
-				raceStore.handleStopEngine()
+				raceStore.handleStopEngine(car.id ?? 0)
 				carStore.updateEngine(car.id ?? 0, 'stopped')
 			}
 			toast.success('Все машины остановились')

@@ -20,7 +20,19 @@ export async function getWinnerById(id: number) {
 	}
 }
 
+async function checkIfWinnerExists(id: number) {
+	try {
+		const response = await axiosInstance.get(`/winners/${id}`)
+		return response.status === 200
+	} catch {
+		return false
+	}
+}
+
 export async function createWinner(id: number, wins: number, time: number) {
+	if (await checkIfWinnerExists(id)) {
+		throw new Error('Winner with this ID already exists')
+	}
 	try {
 		const response = await axiosInstance.post('/winners', {
 			id,
@@ -45,12 +57,9 @@ export async function deleteWinner(id: number) {
 
 export async function updateWinner(id: number, wins: number, time: number) {
 	try {
-		const response = await axiosInstance.patch('/winners', null, {
-			params: {
-				id,
-				wins,
-				time,
-			},
+		const response = await axiosInstance.patch(`/winners/${id}`, {
+			wins,
+			time,
 		})
 		return response.data
 	} catch (e) {

@@ -28,25 +28,29 @@ class WinnerStore {
 				const newWins = existingWinner.wins ? existingWinner.wins + 1 : 1
 				const newBestTime = Math.min(existingWinner.time ?? raceTime, raceTime)
 				console.log(
-					'Updating winner with id:',
+					'Updating winner:',
 					carId,
 					'new wins:',
 					newWins,
 					'new best time:',
 					newBestTime
 				)
+
 				await this.updateWinner(carId, newWins, newBestTime)
 			} else {
 				console.log(
-					'Creating new winner with id:',
+					'Creating new winner:',
 					carId,
 					'wins:',
 					1,
 					'race time:',
 					raceTime
 				)
+
 				await this.createWinner(carId, 1, raceTime)
 			}
+
+			await this.getWinners()
 		} catch (e) {
 			console.error('Error adding/updating winner: ', e)
 		}
@@ -79,7 +83,10 @@ class WinnerStore {
 			const findIndex = this.winners.findIndex(winner => winner.id === id)
 			if (findIndex !== -1) {
 				this.winners[findIndex] = { ...this.winners[findIndex], wins, time }
+				this.winners = [...this.winners]
 			}
+
+			await this.getWinners()
 		} catch (e) {
 			console.error('Error updating car at WinnerStore: ', e)
 			throw new Error('Error updating car at WinnerStore')

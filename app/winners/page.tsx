@@ -8,7 +8,7 @@ import { winnerStore } from '../store/winner-store'
 const WinnersPage = observer(() => {
 	useEffect(() => {
 		winnerStore.getWinners()
-	}, [winnerStore.winners])
+	}, [])
 
 	return (
 		<div className='p-6 flex flex-col items-center'>
