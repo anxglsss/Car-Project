@@ -39,7 +39,7 @@ export default function RootLayout({
 			<body className={`${outfit.variable} antialiased`}>
 				<Navbar></Navbar>
 				<Container>{children}</Container>
-				<Toaster />
+				<Toaster /> 
 			</body>
 		</html>
 	)
