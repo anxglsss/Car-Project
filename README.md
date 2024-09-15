@@ -7,3 +7,4 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 : Bug with adding to winners table, added only first car after re-render
 : Pagination for winners
 : Some trouble with adaptive while race started
+: Slow starting the race
